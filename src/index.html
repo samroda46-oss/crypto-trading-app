@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Trading App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left-panel {
+            flex: 1;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            overflow-y: auto;
+            border-left: 1px solid #eee;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #667eea;
+            margin: 20px 0 15px 0;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .ticker-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .ticker-btn {
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            background: #fff;
+            color: #333;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ticker-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .ticker-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            height: 400px;
+        }
+
+        #chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        .price-display {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .price-display .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .price-display .price {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .price-display .change {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .trade-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .trade-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-buy {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-buy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-sell {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-sell:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .balance-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .balance-display .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .balance-display .amount {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .portfolio-item {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .portfolio-item.empty {
+            color: #999;
+            text-align: center;
+        }
+
+        .portfolio-item-ticker {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .portfolio-item-amount {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .trade-history-item {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            border-left: 3px solid #667eea;
+        }
+
+        .trade-history-item.buy {
+            border-left-color: #11998e;
+        }
+
+        .trade-history-item.sell {
+            border-left-color: #f5576c;
+        }
+
+        .trade-type {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .trade-details {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .status-message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .connection-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #11998e;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .connection-status.disconnected {
+            background: #f5576c;
+            animation: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h1>📊 Crypto Trader</h1>
+            
+            <h2>Select Cryptocurrency</h2>
+            <div class="ticker-selector">
+                <button class="ticker-btn active" data-ticker="BTCUSDT">₿ BTC/USDT</button>
+                <button class="ticker-btn" data-ticker="ETHUSDT">Ξ ETH/USDT</button>
+                <button class="ticker-btn" data-ticker="BNBUSDT">⬡ BNB/USDT</button>
+                <button class="ticker-btn" data-ticker="XRPUSDT">✕ XRP/USDT</button>
+                <button class="ticker-btn" data-ticker="SOLUSDT">◎ SOL/USDT</button>
+                <button class="ticker-btn" data-ticker="ADAUSDT">₳ ADA/USDT</button>
+            </div>
+
+            <div class="price-display">
+                <div class="label">Current Price</div>
+                <div class="price" id="currentPrice">$0.00</div>
+                <div class="change" id="priceChange">Live</div>
+            </div>
+
+            <div class="chart-container">
+                <div id="chart"></div>
+            </div>
+
+            <div class="trade-form">
+                <div id="statusMessage" class="status-message"></div>
+                <div class="form-group">
+                    <label for="tradeAmount">Amount (USDT)</label>
+                    <input type="number" id="tradeAmount" placeholder="Enter amount" min="1" step="0.01" value="100">
+                </div>
+                <div class="trade-buttons">
+                    <button class="btn btn-buy" id="buyBtn">BUY</button>
+                    <button class="btn btn-sell" id="sellBtn">SELL</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>💰 Portfolio</h2>
+            <div class="balance-display">
+                <div class="label">Available Balance</div>
+                <div class="amount" id="balanceAmount">$10,000.00</div>
+            </div>
+
+            <div id="portfolioList" style="margin-bottom: 30px;">
+                <div class="portfolio-item empty">No holdings yet</div>
+            </div>
+
+            <h2>📜 Trade History</h2>
+            <div id="tradeHistory" style="max-height: calc(100vh - 500px); overflow-y: auto;">
+                <div style="text-align: center; color: #999; padding: 20px;">No trades yet</div>
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
+                <span class="connection-status" id="connectionStatus"></span>
+                <span id="connectionText">Connected</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.production.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
