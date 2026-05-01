@@ -1,0 +1,39 @@
+{
+  "name": "crypto-trading-app",
+  "version": "1.0.0",
+  "description": "Desktop cryptocurrency trading app with real-time prices and paper trading",
+  "main": "src/main.js",
+  "homepage": "./",
+  "author": "samroda46-oss",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "dependencies": {
+    "lightweight-charts": "^4.1.0"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.cryptotrading.app",
+    "productName": "Crypto Trading App",
+    "files": [
+      "src/**/*",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": ["nsis", "portable"]
+    },
+    "mac": {
+      "target": ["dmg"]
+    },
+    "linux": {
+      "target": ["AppImage"]
+    }
+  }
+}
